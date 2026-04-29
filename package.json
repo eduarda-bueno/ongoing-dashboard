@@ -1,0 +1,15 @@
+{
+  "name": "fire-counter",
+  "version": "1.0.0",
+  "description": "Ongoing Dashboard - BI e gestão de incidentes do Time Ongoing (Kyte)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.3",
+    "better-sqlite3": "^11.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.0"
+  }
+}
