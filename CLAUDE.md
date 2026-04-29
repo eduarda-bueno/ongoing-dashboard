@@ -14,11 +14,14 @@ Usuária iniciante em programação - explicar conceitos quando necessário.
 ## Stack
 - **Frontend:** HTML + CSS + JavaScript (em `public/index.html`)
 - **Backend:** Node.js + Express (`server.js`)
-- **Banco de dados:** SQLite via better-sqlite3 (`fire-counter.db`)
+- **Banco de dados:** Turso (SQLite na nuvem) — via `@libsql/client`
 - **API externa:** Azure DevOps REST API (PAT no `.env`)
+- **Hospedagem:** Render (gratuito) — https://ongoing-dashboard.onrender.com
+- **Repositório:** https://github.com/eduarda-bueno/ongoing-dashboard
 
-## Como rodar
+## Como rodar localmente
 ```bash
+cd ~/repos/fire-counter
 node server.js
 ```
 Acesse http://localhost:3000
@@ -29,6 +32,8 @@ Arquivo `.env` na raiz com:
 AZURE_PAT=<token>
 AZURE_ORG=KyteLand
 AZURE_PROJECT=Ongoing
+TURSO_URL=libsql://ongoing-dashboard-eduarda.aws-us-east-1.turso.io
+TURSO_TOKEN=<token>
 ```
 
 ## Cores da Kyte
@@ -36,7 +41,7 @@ AZURE_PROJECT=Ongoing
 - Azul escuro: `#363F4E` (fundo da página)
 - Cinza claro: `#F5F5F5` (textos)
 
-## Estrutura do banco (SQLite)
+## Estrutura do banco (Turso)
 Tabela `incidents`:
 - `id` INTEGER PRIMARY KEY
 - `cause` TEXT — descrição do incidente
@@ -51,3 +56,6 @@ Tabela `incidents`:
 - Recorde de dias conta apenas incêndios (🔥), não lançamentos (🚀)
 - Tags "Ongoing" = por tema, tags com padrão numérico (X.Y.Z) = por versão
 - "Sem tag" aparece por último na lista de tags por tema
+
+## Pendências / Próximos passos
+- **Integração com Hefesto (OpenClaw)** — bot de IA do time que responde sobre SLAs e métricas, hoje acessível via Slack. Aguardando autorização do Bruno e William (infra) para expor o Gateway do OpenClaw com autenticação ou criar integração via Slack API. O objetivo é embutir um chat no dashboard para perguntar ao Hefesto sem sair da interface.
