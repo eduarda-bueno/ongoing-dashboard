@@ -47,11 +47,15 @@ app.get('/api/status', async (req, res) => {
   const fires = all.filter(i => i.type !== 'launch');
   const lastFire = fires.length > 0 ? fires[fires.length - 1] : null;
 
-  const days = lastFire ? Math.floor((new Date() - new Date(lastFire.created_at)) / (1000 * 60 * 60 * 24)) : null;
+  // Conta a partir da data de fim do incêndio (ou início se ainda em andamento)
+  const lastFireEnd = lastFire ? (lastFire.ended_at || lastFire.created_at) : null;
+  const days = lastFireEnd ? Math.floor((new Date() - new Date(lastFireEnd)) / (1000 * 60 * 60 * 24)) : null;
 
+  // Recorde: maior intervalo entre fim de um incêndio e início do próximo
   let record = days || 0;
   for (let i = 1; i < fires.length; i++) {
-    const gap = Math.floor((new Date(fires[i].created_at) - new Date(fires[i-1].created_at)) / (1000 * 60 * 60 * 24));
+    const prevEnd = fires[i-1].ended_at || fires[i-1].created_at;
+    const gap = Math.floor((new Date(fires[i].created_at) - new Date(prevEnd)) / (1000 * 60 * 60 * 24));
     if (gap > record) record = gap;
   }
 
