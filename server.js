@@ -64,19 +64,19 @@ app.get('/api/incidents', async (req, res) => {
 });
 
 app.post('/api/incidents', async (req, res) => {
-  const { cause, ended_at, created_at, type } = req.body;
+  const { cause, ended_at, created_at, type, notes } = req.body;
   if (!cause || !cause.trim()) return res.status(400).json({ error: 'Informe a causa do incidente' });
 
   const incType = type || 'fire';
   if (created_at) {
     await db.execute({
-      sql: 'INSERT INTO incidents (cause, created_at, ended_at, type) VALUES (?, ?, ?, ?)',
-      args: [cause.trim(), created_at, ended_at || null, incType]
+      sql: 'INSERT INTO incidents (cause, created_at, ended_at, type, notes) VALUES (?, ?, ?, ?, ?)',
+      args: [cause.trim(), created_at, ended_at || null, incType, notes || null]
     });
   } else {
     await db.execute({
-      sql: 'INSERT INTO incidents (cause, ended_at, type) VALUES (?, ?, ?)',
-      args: [cause.trim(), ended_at || null, incType]
+      sql: 'INSERT INTO incidents (cause, ended_at, type, notes) VALUES (?, ?, ?, ?)',
+      args: [cause.trim(), ended_at || null, incType, notes || null]
     });
   }
 
@@ -94,10 +94,11 @@ app.put('/api/incidents/:id', async (req, res) => {
   const created_at = req.body.created_at || old.created_at;
   const ended_at = req.body.ended_at !== undefined ? req.body.ended_at : old.ended_at;
   const type = req.body.type || old.type;
+  const notes = req.body.notes !== undefined ? req.body.notes : old.notes;
 
   await db.execute({
-    sql: 'UPDATE incidents SET cause = ?, created_at = ?, ended_at = ?, type = ? WHERE id = ?',
-    args: [cause, created_at, ended_at || null, type, id]
+    sql: 'UPDATE incidents SET cause = ?, created_at = ?, ended_at = ?, type = ?, notes = ? WHERE id = ?',
+    args: [cause, created_at, ended_at || null, type, notes || null, id]
   });
 
   const updated = await db.execute({ sql: 'SELECT * FROM incidents WHERE id = ?', args: [id] });

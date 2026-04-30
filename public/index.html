@@ -766,6 +766,7 @@
           </div>
           <input type="hidden" id="incidentType" value="fire">
           <textarea id="causeInput" placeholder="Descreva a causa do incidente..."></textarea>
+          <textarea id="notesInput" placeholder="Observações (opcional)..." style="min-height:40px;margin-top:8px;font-size:0.85rem;"></textarea>
           <div style="display:flex;gap:10px;margin-top:10px;">
             <div style="flex:1">
               <label style="color:#aab;font-size:0.75rem;">Início</label>
@@ -1021,7 +1022,7 @@
       document.getElementById('popupOverlay').classList.add('open');
     }
 
-    function openEditPopup(id, cause, startDate, endDate, type) {
+    function openEditPopup(id, cause, startDate, endDate, type, notes) {
       const editType = type || 'fire';
       document.getElementById('popupTitle').textContent = 'Editar incidente #' + id;
       document.getElementById('popupFire').innerHTML = '';
@@ -1035,6 +1036,8 @@
           <input type="hidden" id="editType" value="${editType}">
           <label>Causa</label>
           <textarea id="editCause">${cause}</textarea>
+          <label>Observações</label>
+          <textarea id="editNotes" style="min-height:40px;font-size:0.85rem;">${notes || ''}</textarea>
           <div style="display:flex;gap:10px;">
             <div style="flex:1">
               <label>Início</label>
@@ -1061,7 +1064,8 @@
 
       if (!cause) { alert('Informe a causa'); return; }
 
-      const body = { cause, type };
+      const notes = document.getElementById('editNotes').value.trim();
+      const body = { cause, type, notes: notes || null };
       if (startDate) body.created_at = startDate + ' 00:00:00';
       body.ended_at = endDate ? endDate + ' 00:00:00' : null;
 
@@ -1150,11 +1154,13 @@
         const inc = data.lastIncident;
         const emoji = typeEmoji(inc.type);
         const openLabel = !inc.ended_at ? '<span class="status-open">EM ANDAMENTO</span>' : '';
+        const notesHtml = inc.notes ? `<div class="date" style="color:#aab;font-style:italic;margin-top:4px;">${esc(inc.notes)}</div>` : '';
         lastBox.innerHTML = `
           <div class="incident-item">
             <div class="cause">${emoji} ${esc(inc.cause)}${openLabel}</div>
             <div class="date">${fmtPeriod(inc)}</div>
-            <button class="edit-btn" onclick="openEditPopup(${inc.id}, '${esc(inc.cause)}', '${inc.created_at.substring(0,10)}', '${inc.ended_at ? inc.ended_at.substring(0,10) : ''}', '${inc.type || 'fire'}')">Editar</button>
+            ${notesHtml}
+            <button class="edit-btn" onclick="openEditPopup(${inc.id}, '${esc(inc.cause)}', '${inc.created_at.substring(0,10)}', '${inc.ended_at ? inc.ended_at.substring(0,10) : ''}', '${inc.type || 'fire'}', '${esc(inc.notes || '').replace(/'/g, "\\'")}')">Editar</button>
             <button class="delete-btn" onclick="deleteIncident(${inc.id})">Eliminar</button>
           </div>`;
       }
@@ -1171,11 +1177,13 @@
       list.innerHTML = incidents.map(i => {
         const emoji = typeEmoji(i.type);
         const openLabel = !i.ended_at ? '<span class="status-open">EM ANDAMENTO</span>' : '';
+        const notesHtml = i.notes ? `<div class="date" style="color:#aab;font-style:italic;margin-top:4px;">${esc(i.notes)}</div>` : '';
         return `
         <div class="incident-item">
           <div class="cause">${emoji} ${esc(i.cause)}${openLabel}</div>
           <div class="date">${fmtPeriod(i)}</div>
-          <button class="edit-btn" onclick="openEditPopup(${i.id}, '${esc(i.cause).replace(/'/g, "\\'")}', '${i.created_at.substring(0,10)}', '${i.ended_at ? i.ended_at.substring(0,10) : ''}', '${i.type || 'fire'}')">Editar</button>
+          ${notesHtml}
+          <button class="edit-btn" onclick="openEditPopup(${i.id}, '${esc(i.cause).replace(/'/g, "\\'")}', '${i.created_at.substring(0,10)}', '${i.ended_at ? i.ended_at.substring(0,10) : ''}', '${i.type || 'fire'}', '${esc(i.notes || '').replace(/'/g, "\\'")}')">Editar</button>
           <button class="delete-btn" onclick="deleteIncident(${i.id})">Eliminar</button>
         </div>`;
       }).join('');
@@ -1190,9 +1198,11 @@
       const endDate = document.getElementById('fireEnd').value;
 
       const type = document.getElementById('incidentType').value;
+      const notes = document.getElementById('notesInput').value.trim();
       const body = { cause, type };
       if (endDate) body.ended_at = endDate + ' 00:00:00';
       if (startDate) body.created_at = startDate + ' 00:00:00';
+      if (notes) body.notes = notes;
 
       const res = await fetch('/api/incidents', {
         method: 'POST',
@@ -1202,6 +1212,7 @@
 
       if (res.ok) {
         input.value = '';
+        document.getElementById('notesInput').value = '';
         document.getElementById('fireStart').value = '';
         document.getElementById('fireEnd').value = '';
         loadFireStatus();
