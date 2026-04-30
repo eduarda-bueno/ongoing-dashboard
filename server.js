@@ -104,6 +104,16 @@ app.put('/api/incidents/:id', async (req, res) => {
   res.json({ incident: updated.rows[0] });
 });
 
+// DELETE /api/incidents/:id - eliminar incidente
+app.delete('/api/incidents/:id', async (req, res) => {
+  const { id } = req.params;
+  const existing = await db.execute({ sql: 'SELECT * FROM incidents WHERE id = ?', args: [id] });
+  if (existing.rows.length === 0) return res.status(404).json({ error: 'Incidente não encontrado' });
+
+  await db.execute({ sql: 'DELETE FROM incidents WHERE id = ?', args: [id] });
+  res.json({ message: 'Incidente removido' });
+});
+
 // === ROTA AZURE DEVOPS - DASHBOARD ===
 
 async function fetchAzureWorkItems(dateFrom, dateTo) {

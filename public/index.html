@@ -327,7 +327,7 @@
       font-size: 0.9rem;
       cursor: pointer;
       line-height: 1;
-      margin-bottom: 0;
+      margin-bottom: 4px;
     }
 
     .line-col .line-val {
@@ -567,6 +567,18 @@
       margin-top: 6px;
     }
     .incident-item .edit-btn:hover { background: #3FC7A3; color: #363F4E; }
+    .incident-item .delete-btn {
+      color: #e05555;
+      background: none;
+      border: 1px solid #e05555;
+      border-radius: 4px;
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-top: 6px;
+      margin-left: 6px;
+    }
+    .incident-item .delete-btn:hover { background: #e05555; color: #F5F5F5; }
     .incident-item .status-open {
       color: #e05555;
       font-size: 0.7rem;
@@ -1067,6 +1079,17 @@
       }
     }
 
+    async function deleteIncident(id) {
+      if (!confirm('Tem certeza que deseja eliminar este incidente?')) return;
+
+      const res = await fetch('/api/incidents/' + id, { method: 'DELETE' });
+      if (res.ok) {
+        loadFireStatus();
+        loadHistory();
+        loadEvolucao();
+      }
+    }
+
     function closePopup(event) {
       if (!event || event.target === document.getElementById('popupOverlay')) {
         document.getElementById('popupOverlay').classList.remove('open');
@@ -1132,6 +1155,7 @@
             <div class="cause">${emoji} ${esc(inc.cause)}${openLabel}</div>
             <div class="date">${fmtPeriod(inc)}</div>
             <button class="edit-btn" onclick="openEditPopup(${inc.id}, '${esc(inc.cause)}', '${inc.created_at.substring(0,10)}', '${inc.ended_at ? inc.ended_at.substring(0,10) : ''}', '${inc.type || 'fire'}')">Editar</button>
+            <button class="delete-btn" onclick="deleteIncident(${inc.id})">Eliminar</button>
           </div>`;
       }
     }
@@ -1152,6 +1176,7 @@
           <div class="cause">${emoji} ${esc(i.cause)}${openLabel}</div>
           <div class="date">${fmtPeriod(i)}</div>
           <button class="edit-btn" onclick="openEditPopup(${i.id}, '${esc(i.cause).replace(/'/g, "\\'")}', '${i.created_at.substring(0,10)}', '${i.ended_at ? i.ended_at.substring(0,10) : ''}', '${i.type || 'fire'}')">Editar</button>
+          <button class="delete-btn" onclick="deleteIncident(${i.id})">Eliminar</button>
         </div>`;
       }).join('');
     }
