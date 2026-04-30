@@ -48,12 +48,14 @@ Tabela `incidents`:
 - `created_at` TEXT — data de início
 - `ended_at` TEXT — data de fim (pode ser null se em andamento)
 - `type` TEXT — 'fire' (incêndio) ou 'launch' (lançamento)
+- `notes` TEXT — observações opcionais sobre o período
 
 ## Regras
 - Sempre escrever textos em português com acentos corretos
 - Manter o visual alinhado com as cores da Kyte
 - Manter o código simples e comentado quando necessário
 - Recorde de dias conta apenas incêndios (🔥), não lançamentos (🚀)
+- Contador de dias conta a partir da data de **fim** do último incêndio (ended_at)
 - Tags "Ongoing" = por tema, tags com padrão numérico (X.Y.Z) = por versão
 - "Sem tag" aparece por último na lista de tags por tema
 
